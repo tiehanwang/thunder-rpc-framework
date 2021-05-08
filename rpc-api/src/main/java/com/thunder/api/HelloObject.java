@@ -9,5 +9,5 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class HelloObject implements Serializable {
     private Integer id;
-    private Integer message;
+    private String message;
 }
