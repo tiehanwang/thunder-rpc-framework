@@ -12,6 +12,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 
+/**
+ * 实际执行方法调用任务的工作线程
+ */
 public class WorkerThread implements Runnable{
 
     private Socket socket;

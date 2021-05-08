@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * 定义传输对象
+ */
 @Data
 @AllArgsConstructor
 public class HelloObject implements Serializable {

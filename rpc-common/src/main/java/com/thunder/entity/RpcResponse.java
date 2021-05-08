@@ -5,6 +5,10 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * 服务端处理完后，向客户端返回的对象
+ * @param <T>
+ */
 @Data
 public class RpcResponse<T> implements Serializable {
     //状态码

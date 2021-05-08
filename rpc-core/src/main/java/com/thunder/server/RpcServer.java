@@ -8,6 +8,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.*;
 import com.thunder.server.WorkerThread;
+
+/**
+ * 进行远程调用连接的服务端
+ */
 public class RpcServer {
     private final ExecutorService threadPool;
     private static final Logger logger = LoggerFactory.getLogger(RpcServer.class);

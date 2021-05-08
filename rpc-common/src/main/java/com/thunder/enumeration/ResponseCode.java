@@ -3,6 +3,9 @@ package com.thunder.enumeration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * 响应状态码对象
+ */
 @AllArgsConstructor
 @Getter
 public enum ResponseCode {

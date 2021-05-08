@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 
+/**
+ * 传输格式（传输协议）：客户端向服务端传输的对象
+ */
 @Data
 @Builder
 public class RpcRequest implements Serializable {
