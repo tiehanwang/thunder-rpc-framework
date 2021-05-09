@@ -1,5 +1,7 @@
-package com.thunder.server;
+package com.thunder.socket.server;
 
+import com.thunder.RequestHandler;
+import com.thunder.RpcServer;
 import com.thunder.registry.ServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +15,9 @@ import java.util.concurrent.*;
 /**
  * 进行远程调用连接的服务端
  */
-public class RpcServer {
+public class SocketServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(RpcServer.class);
+    private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
 
     private static final int corePoolSize = 5;
     private static final int maxPoolSize = 50;
@@ -23,7 +25,7 @@ public class RpcServer {
     private final ExecutorService threadPool;
     private final ServiceRegistry serviceRegistry;
     private final RequestHandler requestHandler = new RequestHandler();
-    public RpcServer (ServiceRegistry serviceRegistry) {
+    public SocketServer (ServiceRegistry serviceRegistry) {
         this.serviceRegistry = serviceRegistry;
         /**
          * 阻塞队列

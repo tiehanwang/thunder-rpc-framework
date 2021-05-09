@@ -11,6 +11,6 @@ public class HelloServiceImpl implements HelloService {
     @Override
     public String hello (HelloObject object) {
         logger.info("accept!,{}",object.getMessage());
-        return "this is the value： id = "+object.getId();
+        return "this is the value:id = "+object.getId();
     }
 }

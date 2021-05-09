@@ -2,12 +2,14 @@ package com.thunder.test;
 
 import com.thunder.api.HelloObject;
 import com.thunder.api.HelloService;
-import com.thunder.client.RpcClientProxy;
+import com.thunder.RpcClientProxy;
+import com.thunder.socket.client.SocketClient;
 
 public class TestClient {
     public static void main (String[] args) {
+        SocketClient client = new SocketClient("127.0.0.1",9000);
         //接口与代理对象之间的中介对象
-        RpcClientProxy proxy = new RpcClientProxy("127.0.0.1", 9000);
+        RpcClientProxy proxy = new RpcClientProxy(client);
         //创建代理对象
         HelloService helloService = proxy.getProxy(HelloService.class);
         //接口方法的参数对象

@@ -1,7 +1,9 @@
 package com.thunder.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -9,7 +11,8 @@ import java.io.Serializable;
  * 传输格式（传输协议）：客户端向服务端传输的对象
  */
 @Data
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class RpcRequest implements Serializable {
     //接口名
     private String interfaceName;

@@ -2,6 +2,7 @@ package com.thunder.entity;
 
 import com.thunder.enumeration.ResponseCode;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -10,6 +11,7 @@ import java.io.Serializable;
  * @param <T>
  */
 @Data
+@NoArgsConstructor
 public class RpcResponse<T> implements Serializable {
     //状态码
     private Integer statusCode;
