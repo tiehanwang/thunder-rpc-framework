@@ -29,12 +29,12 @@ public class RequestHandler{
         return result;
     }
     private Object invokeTargetMethod(RpcRequest rpcRequest,Object service) throws InvocationTargetException, IllegalAccessException{
-        Method method;
+        Method method = null;
         try{
             //getClass()获取的是实例对象的类型
             method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
         }catch (NoSuchMethodException e){
-            return RpcResponse.fail(ResponseCode.NOT_FOUND_METHOD);
+            logger.info("use or send has error:"+e);
         }
         return method.invoke(service, rpcRequest.getParameters());
     }
