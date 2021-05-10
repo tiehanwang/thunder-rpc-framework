@@ -1,17 +1,19 @@
 package com.thunder.socket.client;
 
+
 import com.thunder.RpcClient;
 import com.thunder.entity.RpcRequest;
 import com.thunder.entity.RpcResponse;
 import com.thunder.enumeration.ResponseCode;
 import com.thunder.enumeration.RpcError;
 import com.thunder.exception.RpcException;
+import com.thunder.serializer.CommonSerializer;
+import com.thunder.util.ObjectReader;
+import com.thunder.util.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -22,6 +24,7 @@ public class SocketClient implements RpcClient  {
     private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
     private final String host;
     private final int port;
+    private CommonSerializer serializer;
 
     public SocketClient(String host, int port){
         this.host = host;
@@ -30,12 +33,16 @@ public class SocketClient implements RpcClient  {
 
     @Override
     public Object sendRequest (RpcRequest rpcRequest) {
+        if(serializer == null){
+            logger.error("not set serializer!");
+            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
+        }
         try (Socket socket = new Socket(host, port)) {
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            objectOutputStream.writeObject(rpcRequest);
-            objectOutputStream.flush();
-            RpcResponse rpcResponse = (RpcResponse)objectInputStream.readObject();
+            OutputStream outputStream = socket.getOutputStream();
+            InputStream inputStream = socket.getInputStream();
+            ObjectWriter.writeObject(outputStream, rpcRequest, serializer);
+            Object obj = ObjectReader.readObject(inputStream);
+            RpcResponse rpcResponse = (RpcResponse) obj;
             if(rpcResponse == null){
                 logger.error("服务调用失败，service:{}" + rpcRequest.getInterfaceName());
                 throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, "service:" + rpcRequest.getInterfaceName());
@@ -45,9 +52,14 @@ public class SocketClient implements RpcClient  {
                 throw new RpcException(RpcError.SERVICE_INVOCATION_FAILURE, "service:" + rpcRequest.getInterfaceName());
             }
             return rpcResponse.getData();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             logger.error("调用时有错误发生：" + e);
             throw new RpcException("服务调用失败：", e);
         }
+    }
+
+    @Override
+    public void setSerializer (CommonSerializer serializer) {
+        this.serializer = serializer;
     }
 }

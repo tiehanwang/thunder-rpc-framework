@@ -3,11 +3,14 @@ package com.thunder.test;
 import com.thunder.api.HelloObject;
 import com.thunder.api.HelloService;
 import com.thunder.RpcClientProxy;
+import com.thunder.serializer.HessianSerializer;
+import com.thunder.serializer.KryoSerializer;
 import com.thunder.socket.client.SocketClient;
 
 public class TestClient {
     public static void main (String[] args) {
         SocketClient client = new SocketClient("127.0.0.1",9000);
+        client.setSerializer(new KryoSerializer());
         //接口与代理对象之间的中介对象
         RpcClientProxy proxy = new RpcClientProxy(client);
         //创建代理对象

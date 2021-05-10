@@ -5,6 +5,9 @@ import com.thunder.codec.CommonDecoder;
 import com.thunder.codec.CommonEncoder;
 import com.thunder.entity.RpcRequest;
 import com.thunder.entity.RpcResponse;
+import com.thunder.enumeration.RpcError;
+import com.thunder.exception.RpcException;
+import com.thunder.serializer.CommonSerializer;
 import com.thunder.serializer.HessianSerializer;
 import com.thunder.serializer.JsonSerializer;
 import com.thunder.serializer.KryoSerializer;
@@ -27,6 +30,7 @@ public class NettyClient implements RpcClient {
     private String host;
     private int port;
     private static final Bootstrap bootstrap;
+    private CommonSerializer serializer;
 
     public NettyClient(String host, int port){
         this.host = host;
@@ -38,20 +42,24 @@ public class NettyClient implements RpcClient {
         bootstrap = new Bootstrap();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new CommonDecoder())
-                                .addLast(new CommonEncoder(new HessianSerializer()))
-                                .addLast(new NettyClientHandler());
-                    }
-                });
+                .option(ChannelOption.SO_KEEPALIVE, true);
     }
 
     @Override
     public Object sendRequest(RpcRequest rpcRequest) {
+        if(serializer == null){
+            logger.error("not set serializer!");
+            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
+        }
+        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel ch) {
+                ChannelPipeline pipeline = ch.pipeline();
+                pipeline.addLast(new CommonDecoder())
+                        .addLast(new CommonEncoder(serializer))
+                        .addLast(new NettyClientHandler());
+            }
+        });
         try {
             ChannelFuture future = bootstrap.connect(host, port).sync();
             logger.info("client connect server{}:{}", host, port);
@@ -76,5 +84,10 @@ public class NettyClient implements RpcClient {
             logger.error("发送消息时有错误发生:", e);
         }
         return null;
+    }
+
+    @Override
+    public void setSerializer (CommonSerializer serializer) {
+        this.serializer = serializer;
     }
 }

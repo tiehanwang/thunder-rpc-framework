@@ -3,6 +3,7 @@ package com.thunder.netty.server;
 import com.thunder.RpcServer;
 import com.thunder.codec.CommonDecoder;
 import com.thunder.codec.CommonEncoder;
+import com.thunder.serializer.CommonSerializer;
 import com.thunder.serializer.HessianSerializer;
 import com.thunder.serializer.JsonSerializer;
 import com.thunder.serializer.KryoSerializer;
@@ -22,6 +23,8 @@ import org.slf4j.LoggerFactory;
 public class NettyServer implements RpcServer {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    private CommonSerializer serializer;
+
 
     @Override
     public void start(int port) {
@@ -47,12 +50,12 @@ public class NettyServer implements RpcServer {
                     //初始化Handler,设置Handler操作
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
+                        protected void initChannel(SocketChannel ch) {
                             //初始化管道
                             ChannelPipeline pipeline = ch.pipeline();
                             //往管道中添加Handler，注意入站Handler与出站Handler都必须按实际执行顺序添加，比如先解码再Server处理，那Decoder()就要放在前面。
                             //但入站和出站Handler之间则互不影响，这里我就是先添加的出站Handler再添加的入站
-                            pipeline.addLast(new CommonEncoder(new HessianSerializer()))
+                            pipeline.addLast(new CommonEncoder(serializer))
                                     .addLast(new CommonDecoder())
                                     .addLast(new NettyServerHandler());
                         }
@@ -69,4 +72,10 @@ public class NettyServer implements RpcServer {
             workerGroup.shutdownGracefully();
         }
     }
+
+    @Override
+    public void setSerializer (CommonSerializer serializer) {
+        this.serializer = serializer;
+    }
+
 }

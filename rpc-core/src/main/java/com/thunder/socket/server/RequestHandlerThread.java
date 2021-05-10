@@ -4,12 +4,13 @@ import com.thunder.RequestHandler;
 import com.thunder.entity.RpcRequest;
 import com.thunder.entity.RpcResponse;
 import com.thunder.registry.ServiceRegistry;
+import com.thunder.serializer.CommonSerializer;
+import com.thunder.util.ObjectReader;
+import com.thunder.util.ObjectWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -22,22 +23,24 @@ public class RequestHandlerThread implements Runnable{
     private Socket socket;
     private RequestHandler requestHandler;
     private ServiceRegistry serviceRegistry;
-    public RequestHandlerThread(Socket socket, RequestHandler requestHandler, ServiceRegistry serviceRegistry) {
+    private CommonSerializer serializer;
+    public RequestHandlerThread(Socket socket, RequestHandler requestHandler, ServiceRegistry serviceRegistry,CommonSerializer serializer) {
         this.socket = socket;
         this.requestHandler = requestHandler;
         this.serviceRegistry = serviceRegistry;
+        this.serializer = serializer;
     }
     @Override
     public void run () {
-        try(ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())){
-            RpcRequest rpcRequest = (RpcRequest) objectInputStream.readObject();
+        try(InputStream inputStream = socket.getInputStream();
+            OutputStream outputStream = socket.getOutputStream()) {
+            RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
             String interfaceName = rpcRequest.getInterfaceName();
             Object service = serviceRegistry.getService(interfaceName);
             Object result = requestHandler.handle(rpcRequest,service);
-            objectOutputStream.writeObject(RpcResponse.success(result));
-            objectOutputStream.flush();
-        }catch (IOException | ClassNotFoundException e){
+            RpcResponse<Object> response = RpcResponse.success(result);
+            ObjectWriter.writeObject(outputStream, response, serializer);
+        }catch (IOException e){
             logger.info("send or use error"+e);
         }
     }
