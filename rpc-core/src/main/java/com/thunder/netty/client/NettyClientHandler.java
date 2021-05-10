@@ -16,10 +16,10 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
     private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) {
         try {
             logger.info(String.format("client receive msg :%s", msg));
-            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse");
+            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse"+ msg.getRequestId());
             ctx.channel().attr(key).set(msg);
             //关闭客户端通道
             ctx.channel().close();
@@ -29,7 +29,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause){
         logger.error("过程调用中有错误发生：");
         cause.printStackTrace();
         ctx.close();

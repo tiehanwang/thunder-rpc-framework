@@ -27,13 +27,13 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg){
         try{
             logger.info("server receive msg:{}", msg);
             String interfaceName = msg.getInterfaceName();
             Object service = serviceRegistry.getService(interfaceName);
-            Object result = requestHandler.handle(msg, service);
-            ChannelFuture future = ctx.writeAndFlush(RpcResponse.success(result));
+            Object response = requestHandler.handle(msg, service);
+            ChannelFuture future = ctx.writeAndFlush(response);
             //添加一个监听器到channelfuture来检测是否所有的数据包都发出，然后关闭通道
             future.addListener(ChannelFutureListener.CLOSE);
         }finally {
@@ -42,7 +42,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.error("处理过程调用时有错误发生：");
         cause.printStackTrace();
         ctx.close();

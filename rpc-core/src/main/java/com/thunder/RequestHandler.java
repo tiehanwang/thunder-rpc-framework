@@ -26,7 +26,7 @@ public class RequestHandler{
         }catch (IllegalAccessException | InvocationTargetException e){
             logger.info("error in send or use：" + e);
         }
-        return result;
+        return RpcResponse.success(result, rpcRequest.getRequestId());
     }
     private Object invokeTargetMethod(RpcRequest rpcRequest,Object service) throws InvocationTargetException, IllegalAccessException{
         Method method = null;
@@ -35,6 +35,7 @@ public class RequestHandler{
             method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
         }catch (NoSuchMethodException e){
             logger.info("use or send has error:"+e);
+            return RpcResponse.fail(ResponseCode.NOT_FOUND_METHOD, rpcRequest.getRequestId());
         }
         return method.invoke(service, rpcRequest.getParameters());
     }
