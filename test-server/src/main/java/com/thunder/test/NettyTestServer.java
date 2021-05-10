@@ -6,6 +6,7 @@ import com.thunder.registry.DefaultServiceRegistry;
 import com.thunder.registry.ServiceRegistry;
 import com.thunder.serializer.HessianSerializer;
 import com.thunder.serializer.KryoSerializer;
+import com.thunder.serializer.ProtostuffSerializer;
 
 public class NettyTestServer {
     public static void main(String[] args) {
@@ -13,7 +14,7 @@ public class NettyTestServer {
         ServiceRegistry registry = new DefaultServiceRegistry();
         registry.register(helloService);
         NettyServer server = new NettyServer();
-        server.setSerializer(new HessianSerializer());
+        server.setSerializer(new ProtostuffSerializer());
         server.start(9999);
     }
 }

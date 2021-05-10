@@ -1,12 +1,14 @@
 package com.thunder.util;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import lombok.AllArgsConstructor;
 
 import java.util.concurrent.*;
 
 /**
  * 创建threadpool（线程池）工具类
  */
+@AllArgsConstructor
 public class ThreadPoolFactory {
     /**
      * 线程池参数
@@ -16,8 +18,6 @@ public class ThreadPoolFactory {
     private static final int KEEP_ALIVE_TIME = 1;
     private static final int BLOCKING_QUEUE_CAPACITY = 100;
 
-    private ThreadPoolFactory(){
-    }
 
     public static ExecutorService createDefaultThreadPool(String threadNamePrefix){
         return createDefaultThreadPool(threadNamePrefix, false);

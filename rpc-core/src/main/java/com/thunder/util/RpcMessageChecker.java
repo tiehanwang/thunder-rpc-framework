@@ -8,6 +8,9 @@ import com.thunder.exception.RpcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 检查请求号是否一致
+ */
 public class RpcMessageChecker {
 
     private static final String INTERFACE_NAME = "interfaceName";

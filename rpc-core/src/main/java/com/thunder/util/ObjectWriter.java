@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * Socket方式将数据序列化并写入输出流中【编码】
+ */
 public class ObjectWriter {
 
     private static final Logger logger = LoggerFactory.getLogger(ObjectWriter.class);
