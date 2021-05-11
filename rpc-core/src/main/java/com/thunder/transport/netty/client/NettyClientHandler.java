@@ -2,6 +2,7 @@ package com.thunder.transport.netty.client;
 
 import com.thunder.entity.RpcRequest;
 import com.thunder.entity.RpcResponse;
+import com.thunder.factory.SingletonFactory;
 import com.thunder.serializer.CommonSerializer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -22,6 +23,12 @@ import java.net.InetSocketAddress;
 public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
+
+    private final UnprocessedRequests unprocessedRequests;
+
+    public NettyClientHandler(){
+        unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
+    }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -45,10 +52,8 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<RpcResponse>
     protected void channelRead0(ChannelHandlerContext ctx, RpcResponse msg) {
         try {
             logger.info(String.format("client receive msg :%s", msg));
-            AttributeKey<RpcResponse> key = AttributeKey.valueOf("rpcResponse"+ msg.getRequestId());
-            ctx.channel().attr(key).set(msg);
-            //关闭客户端通道
-            ctx.channel().close();
+            //将响应数据取出
+            unprocessedRequests.complete(msg);
         } finally {
             ReferenceCountUtil.release(msg);
         }

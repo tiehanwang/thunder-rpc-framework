@@ -32,15 +32,17 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg){
         try{
             if(msg.getHeartBeat()){
-                logger.info("receive client heartbeat……");
+                logger.info("receive client heartbeat");
                 return;
             }
             logger.info("server get request:{}", msg);
             Object response = requestHandler.handle(msg);
-            //注意这里的通道是workGroup中的，而NettyServer中创建的是bossGroup的，不要混淆
-            ChannelFuture future = ctx.writeAndFlush(response);
-            //当操作失败或者被取消了就关闭通道
-            future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+            if(ctx.channel().isActive() && ctx.channel().isWritable()) {
+                //注意这里的通道是workGroup中的，而NettyServer中创建的是bossGroup的，不要混淆
+                ctx.writeAndFlush(response);
+            }else {
+                logger.error("通道不可写");
+            }
         }finally {
             ReferenceCountUtil.release(msg);
         }

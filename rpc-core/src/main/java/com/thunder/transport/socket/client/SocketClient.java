@@ -54,7 +54,7 @@ public class SocketClient implements RpcClient  {
             Object obj = ObjectReader.readObject(inputStream);
             RpcResponse rpcResponse = (RpcResponse) obj;
             RpcMessageChecker.check(rpcRequest, rpcResponse);
-            return rpcResponse.getData();
+            return rpcResponse;
         } catch (IOException e) {
             logger.error("error happened" + e);
             throw new RpcException("error", e);
