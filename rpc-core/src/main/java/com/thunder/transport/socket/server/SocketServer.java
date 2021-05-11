@@ -35,14 +35,19 @@ public class SocketServer implements RpcServer {
 
     private final String host;
     private final int port;
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
     private final ServiceProvider serviceProvider;
 
     public SocketServer(String host, int port){
+        this(host, port, DEFAULT_SERIALIZER);
+    }
+
+    public SocketServer(String host, int port, Integer serializerCode){
         this.host = host;
         this.port = port;
         serviceRegistry = new NacosServiceRegistry();
         serviceProvider = new ServiceProviderImpl();
+        serializer = CommonSerializer.getByCode(serializerCode);
         //创建线程池
         threadPool = ThreadPoolFactory.createDefaultThreadPool("socket-rpc-server");
     }
@@ -85,9 +90,5 @@ public class SocketServer implements RpcServer {
         serviceProvider.addServiceProvider(service, serviceClass);
         serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
         start();
-    }
-    @Override
-    public void setSerializer (CommonSerializer serializer) {
-        this.serializer = serializer;
     }
 }

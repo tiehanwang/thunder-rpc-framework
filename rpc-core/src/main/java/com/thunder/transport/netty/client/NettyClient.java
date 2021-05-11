@@ -29,7 +29,7 @@ public class NettyClient implements RpcClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
 
     private static final EventLoopGroup group;
     private static final Bootstrap bootstrap;
@@ -42,8 +42,14 @@ public class NettyClient implements RpcClient {
                 .option(ChannelOption.SO_KEEPALIVE, true);
     }
     private final ServiceDiscovery serviceDiscovery;
-    public NettyClient(){
+    public NettyClient() {
+        //以默认序列化器调用构造函数
+        this(DEFAULT_SERIALIZER);
+    }
+
+    public NettyClient(Integer serializerCode){
         serviceDiscovery = new NacosServiceDiscovery();
+        serializer = CommonSerializer.getByCode(serializerCode);
     }
     @Override
     public Object sendRequest(RpcRequest rpcRequest) {
@@ -85,8 +91,4 @@ public class NettyClient implements RpcClient {
         return result.get();
     }
 
-    @Override
-    public void setSerializer (CommonSerializer serializer) {
-        this.serializer = serializer;
-    }
 }

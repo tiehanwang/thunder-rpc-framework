@@ -30,17 +30,22 @@ import java.net.InetSocketAddress;
 public class NettyServer implements RpcServer {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
     private final String host;
     private final int port;
 
     private final ServiceRegistry serviceRegistry;
     private final ServiceProvider serviceProvider;
     public NettyServer(String host, int port) {
+        this(host, port, DEFAULT_SERIALIZER);
+    }
+
+    public NettyServer(String host, int port, Integer serializerCode) {
         this.host = host;
         this.port = port;
         serviceRegistry = new NacosServiceRegistry();
         serviceProvider = new ServiceProviderImpl();
+        serializer = CommonSerializer.getByCode(serializerCode);
     }
     @Override
     public <T> void publishService(T service, Class<T> serviceClass) {
@@ -55,6 +60,8 @@ public class NettyServer implements RpcServer {
 
     @Override
     public void start() {
+        //添加注销服务的钩子，服务端关闭时才会执行
+        ShutdownHook.getShutdownHook().addClearAllHook();
         //用于处理客户端新连接的主”线程池“
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         //用于连接后处理IO事件的从”线程池“
@@ -89,8 +96,6 @@ public class NettyServer implements RpcServer {
                     });
             //绑定端口，启动Netty，sync()代表阻塞主Server线程，以执行Netty线程，如果不阻塞Netty就直接被下面shutdown了
             ChannelFuture future = serverBootstrap.bind(host, port).sync();
-            //添加注销服务的钩子，服务端关闭时才会执行
-            ShutdownHook.getShutdownHook().addClearAllHook();
             //等确定通道关闭了，关闭future回到主Server线程
             future.channel().closeFuture().sync();
         }catch (InterruptedException e){
@@ -102,9 +107,6 @@ public class NettyServer implements RpcServer {
         }
     }
 
-    @Override
-    public void setSerializer (CommonSerializer serializer) {
-        this.serializer = serializer;
-    }
+
 
 }
