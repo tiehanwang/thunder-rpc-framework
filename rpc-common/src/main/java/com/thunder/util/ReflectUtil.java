@@ -12,6 +12,9 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+/**
+ * 扫描包及其子包下所有的类，并将其Class对象放入一个Set中返回
+ */
 public class ReflectUtil {
 
     public static String getStackTrace() {

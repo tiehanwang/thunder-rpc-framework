@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author [PANDA] 1843047930@qq.com
+ *
  * @date [2021-03-16 9:58]
  * @description 表示一个服务提供类，注解放在接口的实现类上
  */
