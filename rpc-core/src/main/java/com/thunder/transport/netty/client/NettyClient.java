@@ -1,6 +1,8 @@
 package com.thunder.transport.netty.client;
 
 import com.thunder.factory.SingletonFactory;
+import com.thunder.loadbalancer.LoadBalancer;
+import com.thunder.loadbalancer.RandomLoadBalancer;
 import com.thunder.registry.NacosServiceDiscovery;
 import com.thunder.registry.NacosServiceRegistry;
 import com.thunder.registry.ServiceDiscovery;
@@ -46,11 +48,19 @@ public class NettyClient implements RpcClient {
     private final ServiceDiscovery serviceDiscovery;
     public NettyClient() {
         //以默认序列化器调用构造函数
-        this(DEFAULT_SERIALIZER);
+        this(DEFAULT_SERIALIZER, new RandomLoadBalancer());
+    }
+
+    public NettyClient(LoadBalancer loadBalancer){
+        this(DEFAULT_SERIALIZER, loadBalancer);
     }
 
     public NettyClient(Integer serializerCode){
-        serviceDiscovery = new NacosServiceDiscovery();
+        this(serializerCode, new RandomLoadBalancer());
+    }
+
+    public NettyClient(Integer serializerCode, LoadBalancer loadBalancer){
+        serviceDiscovery = new NacosServiceDiscovery(loadBalancer);
         serializer = CommonSerializer.getByCode(serializerCode);
         unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
     }

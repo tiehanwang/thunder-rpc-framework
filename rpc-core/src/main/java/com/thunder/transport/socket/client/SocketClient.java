@@ -1,6 +1,8 @@
 package com.thunder.transport.socket.client;
 
 
+import com.thunder.loadbalancer.LoadBalancer;
+import com.thunder.loadbalancer.RandomLoadBalancer;
 import com.thunder.registry.NacosServiceDiscovery;
 import com.thunder.registry.NacosServiceRegistry;
 import com.thunder.registry.ServiceDiscovery;
@@ -31,11 +33,20 @@ public class SocketClient implements RpcClient  {
     private final CommonSerializer serializer;
 
     public SocketClient() {
-        this(DEFAULT_SERIALIZER);
+        //以默认序列化器调用构造函数
+        this(DEFAULT_SERIALIZER, new RandomLoadBalancer());
     }
 
-    public SocketClient(Integer serializerCode) {
-        serviceDiscovery = new NacosServiceDiscovery();
+    public SocketClient(LoadBalancer loadBalancer){
+        this(DEFAULT_SERIALIZER, loadBalancer);
+    }
+
+    public SocketClient(Integer serializerCode){
+        this(serializerCode, new RandomLoadBalancer());
+    }
+
+    public SocketClient(Integer serializerCode, LoadBalancer loadBalancer) {
+        serviceDiscovery = new NacosServiceDiscovery(loadBalancer);
         serializer = CommonSerializer.getByCode(serializerCode);
     }
     @Override
