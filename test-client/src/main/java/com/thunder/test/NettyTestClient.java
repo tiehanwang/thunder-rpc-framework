@@ -1,5 +1,6 @@
 package com.thunder.test;
 
+import com.thunder.api.ByeService;
 import com.thunder.serializer.CommonSerializer;
 import com.thunder.transport.RpcClient;
 import com.thunder.transport.RpcClientProxy;
@@ -16,5 +17,7 @@ public class NettyTestClient {
         HelloObject object = new HelloObject(12, "this is netty style");
         String res = helloService.hello(object);
         System.out.println(res);
+        ByeService byeService = rpcClientProxy.getProxy(ByeService.class);
+        System.out.println(byeService.bye("Netty"));
     }
 }

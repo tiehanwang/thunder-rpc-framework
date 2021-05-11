@@ -11,6 +11,7 @@ import com.thunder.provider.ServiceProviderImpl;
 import com.thunder.registry.NacosServiceRegistry;
 import com.thunder.registry.ServiceRegistry;
 import com.thunder.serializer.CommonSerializer;
+import com.thunder.transport.AbstractRpcServer;
 import com.thunder.transport.RpcServer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -29,15 +30,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * Netty服务端
  */
-public class NettyServer implements RpcServer {
+public class NettyServer extends AbstractRpcServer {
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
     private final CommonSerializer serializer;
-    private final String host;
-    private final int port;
-
-    private final ServiceRegistry serviceRegistry;
-    private final ServiceProvider serviceProvider;
     public NettyServer(String host, int port) {
         this(host, port, DEFAULT_SERIALIZER);
     }
@@ -48,16 +44,8 @@ public class NettyServer implements RpcServer {
         serviceRegistry = new NacosServiceRegistry();
         serviceProvider = new ServiceProviderImpl();
         serializer = CommonSerializer.getByCode(serializerCode);
-    }
-    @Override
-    public <T> void publishService(T service, Class<T> serviceClass) {
-        if (serializer == null) {
-            logger.error("未设置序列化器");
-            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
-        }
-        serviceProvider.addServiceProvider(service, serviceClass);
-        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
-        start();
+        //自动注册服务
+        scanServices();
     }
 
     @Override

@@ -92,7 +92,7 @@ public class ChannelProvider {
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
         bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener) future -> {
            if (future.isSuccess()) {
-               logger.info("client connect success！");
+               logger.info("client connect is success！");
                channel = future.channel();
                completableFuture.complete(future.channel());
            }else {

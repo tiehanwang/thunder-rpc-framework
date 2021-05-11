@@ -27,8 +27,7 @@ public class ServiceProviderImpl implements ServiceProvider {
      * @param service 待注册
      */
     @Override
-    public <T> void addServiceProvider(T service, Class<T> serviceClass) {
-        String serviceName = serviceClass.getCanonicalName();
+    public <T> void addServiceProvider(T service, String serviceName) {
         if(registeredService.contains(serviceName)){
             return;
         }
