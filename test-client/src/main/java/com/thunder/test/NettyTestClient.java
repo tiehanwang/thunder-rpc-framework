@@ -1,16 +1,15 @@
 package com.thunder.test;
 
-import com.thunder.RpcClient;
-import com.thunder.RpcClientProxy;
+import com.thunder.transport.RpcClient;
+import com.thunder.transport.RpcClientProxy;
 import com.thunder.api.HelloObject;
 import com.thunder.api.HelloService;
-import com.thunder.netty.client.NettyClient;
-import com.thunder.serializer.HessianSerializer;
+import com.thunder.transport.netty.client.NettyClient;
 import com.thunder.serializer.ProtostuffSerializer;
 
 public class NettyTestClient {
     public static void main(String[] args) {
-        RpcClient client = new NettyClient("127.0.0.1", 9999);
+        RpcClient client = new NettyClient();
         client.setSerializer(new ProtostuffSerializer());
         RpcClientProxy rpcClientProxy = new RpcClientProxy(client);
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);

@@ -1,4 +1,4 @@
-package com.thunder.netty.client;
+package com.thunder.transport.netty.client;
 
 import com.thunder.codec.CommonDecoder;
 import com.thunder.codec.CommonEncoder;

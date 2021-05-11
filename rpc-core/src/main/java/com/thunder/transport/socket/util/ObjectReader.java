@@ -1,4 +1,4 @@
-package com.thunder.util;
+package com.thunder.transport.socket.util;
 
 import com.thunder.entity.RpcRequest;
 import com.thunder.entity.RpcResponse;
@@ -59,12 +59,13 @@ public class ObjectReader {
      * @return [int]
      * @date [2021-03-10 21:57]
      */
-    private static int bytesToInt(byte[] src) {
-        int value;
-        value = ((src[0] & 0xFF) << 24)
-                |((src[1] & 0xFF) << 16)
-                |((src[2] & 0xFF) << 8)
-                |(src[3] & 0xFF);
+    private static int bytesToInt(byte[] bytes) {
+        int value=0;
+        for(int i = 0; i < 4; i++) {
+            int shift= (3-i) * 8;
+            value +=(bytes[i] & 0xFF) << shift;
+        }
         return value;
+
     }
 }

@@ -1,8 +1,10 @@
-package com.thunder;
+package com.thunder.handler;
 
 import com.thunder.entity.RpcRequest;
 import com.thunder.entity.RpcResponse;
 import com.thunder.enumeration.ResponseCode;
+import com.thunder.provider.ServiceProvider;
+import com.thunder.provider.ServiceProviderImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +20,16 @@ public class RequestHandler{
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    public Object handle(RpcRequest rpcRequest, Object service){
+    private static final ServiceProvider serviceProvider;
+
+    static {
+        serviceProvider = new ServiceProviderImpl();
+    }
+
+    public Object handle(RpcRequest rpcRequest){
         Object result = null;
+        //从服务端本地注册表中获取服务实体
+        Object service = serviceProvider.getServiceProvider(rpcRequest.getInterfaceName());
         try{
             result = invokeTargetMethod(rpcRequest, service);
             logger.info("service:{}success method:{}", rpcRequest.getInterfaceName(), rpcRequest.getMethodName());

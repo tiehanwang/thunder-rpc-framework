@@ -1,20 +1,22 @@
-package com.thunder.socket.client;
+package com.thunder.transport.socket.client;
 
 
-import com.thunder.RpcClient;
+import com.thunder.registry.NacosServiceRegistry;
+import com.thunder.registry.ServiceRegistry;
+import com.thunder.transport.RpcClient;
 import com.thunder.entity.RpcRequest;
 import com.thunder.entity.RpcResponse;
-import com.thunder.enumeration.ResponseCode;
 import com.thunder.enumeration.RpcError;
 import com.thunder.exception.RpcException;
 import com.thunder.serializer.CommonSerializer;
-import com.thunder.util.ObjectReader;
-import com.thunder.util.ObjectWriter;
+import com.thunder.transport.socket.util.ObjectReader;
+import com.thunder.transport.socket.util.ObjectWriter;
 import com.thunder.util.RpcMessageChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
@@ -23,22 +25,22 @@ import java.net.Socket;
 public class SocketClient implements RpcClient  {
 
     private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
-    private final String host;
-    private final int port;
+    private final ServiceRegistry serviceRegistry;
     private CommonSerializer serializer;
 
-    public SocketClient(String host, int port){
-        this.host = host;
-        this.port = port;
+    public SocketClient() {
+        serviceRegistry = new NacosServiceRegistry();
     }
-
     @Override
     public Object sendRequest (RpcRequest rpcRequest) {
         if(serializer == null){
             logger.error("not set serializer!");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        try (Socket socket = new Socket(host, port)) {
+        //从Nacos获取提供对应服务的服务端地址
+        InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+        try (Socket socket = new Socket()) {
+            socket.connect(inetSocketAddress);
             OutputStream outputStream = socket.getOutputStream();
             InputStream inputStream = socket.getInputStream();
             ObjectWriter.writeObject(outputStream, rpcRequest, serializer);
@@ -47,8 +49,8 @@ public class SocketClient implements RpcClient  {
             RpcMessageChecker.check(rpcRequest, rpcResponse);
             return rpcResponse.getData();
         } catch (IOException e) {
-            logger.error("调用时有错误发生：" + e);
-            throw new RpcException("服务调用失败：", e);
+            logger.error("error happened" + e);
+            throw new RpcException("error", e);
         }
     }
 

@@ -1,4 +1,4 @@
-package com.thunder.netty.client;
+package com.thunder.transport.netty.client;
 
 import com.thunder.entity.RpcResponse;
 import io.netty.channel.ChannelHandlerContext;

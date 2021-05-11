@@ -1,4 +1,4 @@
-package com.thunder.util;
+package com.thunder.transport.socket.util;
 
 import com.thunder.entity.RpcRequest;
 import com.thunder.enumeration.PackageType;
@@ -24,7 +24,8 @@ public class ObjectWriter {
         } else {
             out.write(intToBytes(PackageType.RESPONSE_PACK.getCode()));
         }
-        out.write(intToBytes(serializer.getCode()));
+        byte[] bytes1 = intToBytes(serializer.getCode());
+        out.write(bytes1);
         byte[] bytes = serializer.serialize(object);
         out.write(intToBytes(bytes.length));
         out.write(bytes);
@@ -37,12 +38,12 @@ public class ObjectWriter {
      * @return [byte[]]
      * @date [2021-03-10 22:15]
      */
-    private static byte[] intToBytes(int value) {
-        byte[] des = new byte[4];
-        des[3] =  (byte) ((value>>24) & 0xFF);
-        des[2] =  (byte) ((value>>16) & 0xFF);
-        des[1] =  (byte) ((value>>8) & 0xFF);
-        des[0] =  (byte) (value & 0xFF);
-        return des;
+    private static byte[] intToBytes(int i) {
+        byte[] result = new byte[4];
+        result[0] = (byte)((i >> 24) & 0xFF);
+        result[1] = (byte)((i >> 16) & 0xFF);
+        result[2] = (byte)((i >> 8) & 0xFF);
+        result[3] = (byte)(i & 0xFF);
+        return result;
     }
 }
