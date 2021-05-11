@@ -3,7 +3,7 @@ package com.thunder.registry;
 import java.net.InetSocketAddress;
 
 /**
- * 服务注册表通用接口
+ * 服务注册接口
  */
 public interface ServiceRegistry {
 
@@ -14,13 +14,5 @@ public interface ServiceRegistry {
      *
      */
     void register(String serviceName, InetSocketAddress inetSocketAddress);
-
-    /**
-     * @description 根据服务名查找服务实体
-     *
-     * @return [java.net.InetSocketAddress] 服务实体
-     *
-     */
-    InetSocketAddress lookupService(String serviceName);
 
 }

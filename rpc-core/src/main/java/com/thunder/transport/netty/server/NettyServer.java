@@ -42,12 +42,12 @@ public class NettyServer implements RpcServer {
         serviceProvider = new ServiceProviderImpl();
     }
     @Override
-    public <T> void publishService(Object service, Class<T> serviceClass) {
+    public <T> void publishService(T service, Class<T> serviceClass) {
         if (serializer == null) {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        serviceProvider.addServiceProvider(service);
+        serviceProvider.addServiceProvider(service, serviceClass);
         serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
         start();
     }
@@ -69,8 +69,8 @@ public class NettyServer implements RpcServer {
                     .handler(new LoggingHandler(LogLevel.INFO))
                     //配置ServerChannel参数，服务端接受连接的最大队列长度，如果队列已满，客户端连接将被拒绝。理解可参考：https://blog.csdn.net/fd2025/article/details/79740226
                     .option(ChannelOption.SO_BACKLOG, 256)
-                    //启用该功能时，TCP会主动探测空闲连接的有效性。可以将此功能视为TCP的心跳机制，默认的心跳间隔是7200s即2小时。
-                    .option(ChannelOption.SO_KEEPALIVE, true)
+                    //启用该功能时，TCP会主动探测空闲连接的有效性。可以将此功能视为TCP的心跳机制，默认的心跳间隔是7200s即2小时。 服务端应该设置childOption 客户端设置option
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
                     //配置Channel参数，nodelay没有延迟，true就代表禁用Nagle算法，减小传输延迟。理解可参考：https://blog.csdn.net/lclwjl/article/details/80154565
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     //初始化Handler,设置Handler操作

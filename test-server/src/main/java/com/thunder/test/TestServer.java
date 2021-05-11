@@ -8,7 +8,7 @@ import com.thunder.transport.socket.server.SocketServer;
 
 public class TestServer {
     public static void main (String[] args) {
-        HelloService helloService = new HelloServiceImpl();
+        HelloService helloService = new HelloServiceImpl2();
         SocketServer socketServer = new SocketServer("127.0.0.1",9000);
         socketServer.setSerializer(new HessianSerializer());
         socketServer.publishService(helloService,HelloService.class);

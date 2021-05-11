@@ -35,7 +35,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg) throws Exception {
         threadPool.execute(() -> {
             try{
-                logger.info("服务端接收到请求：{}", msg);
+                logger.info("Server receive msg:{}", msg);
                 Object response = requestHandler.handle(msg);
                 //注意这里的通道是workGroup中的，而NettyServer中创建的是bossGroup的，不要混淆
                 ChannelFuture future = ctx.writeAndFlush(response);
