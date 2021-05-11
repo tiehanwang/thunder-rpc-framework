@@ -22,29 +22,28 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
 
     private static final Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
     private RequestHandler requestHandler;
-    private static final String THREAD_NAME_PREFIX = "netty-server-handler";
-    private final ExecutorService threadPool;
+
 
     public NettyServerHandler(){
         requestHandler = new RequestHandler();
-        //引入异步业务线程池，避免长时间的耗时业务阻塞netty本身的worker工作线程，耽误了同一个Selector中其他任务的执行
-        threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RpcRequest msg){
-        threadPool.execute(() -> {
-            try{
-                logger.info("Server receive msg:{}", msg);
-                Object response = requestHandler.handle(msg);
-                //注意这里的通道是workGroup中的，而NettyServer中创建的是bossGroup的，不要混淆
-                ChannelFuture future = ctx.writeAndFlush(response);
-                //当操作失败或者被取消了就关闭通道
-                future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-            }finally {
-                ReferenceCountUtil.release(msg);
+        try{
+            if(msg.getHeartBeat()){
+                logger.info("receive client heartbeat……");
+                return;
             }
-        });
+            logger.info("server get request:{}", msg);
+            Object response = requestHandler.handle(msg);
+            //注意这里的通道是workGroup中的，而NettyServer中创建的是bossGroup的，不要混淆
+            ChannelFuture future = ctx.writeAndFlush(response);
+            //当操作失败或者被取消了就关闭通道
+            future.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
+        }finally {
+            ReferenceCountUtil.release(msg);
+        }
     }
 
     @Override
