@@ -3,6 +3,7 @@ package com.thunder.transport.socket.server;
 import com.thunder.handler.RequestHandler;
 import com.thunder.enumeration.RpcError;
 import com.thunder.exception.RpcException;
+import com.thunder.hook.ShutdownHook;
 import com.thunder.provider.ServiceProvider;
 import com.thunder.provider.ServiceProviderImpl;
 import com.thunder.registry.NacosServiceRegistry;
@@ -53,12 +54,16 @@ public class SocketServer implements RpcServer {
             logger.error("not set serializer!");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        try(ServerSocket serverSocket = new ServerSocket(port)){
+
+        try(ServerSocket serverSocket = new ServerSocket()){
+            serverSocket.bind(new InetSocketAddress(host, port));
             logger.info("Server begin ");
+            //添加钩子，服务端关闭时会注销服务
+            ShutdownHook.getShutdownHook().addClearAllHook();
             Socket socket;
             while ((socket = serverSocket.accept())!=null){
                 logger.info("Client Connection! IP:{} Port:{}",socket.getInetAddress(),socket.getPort());
-                threadPool.execute(new RequestHandlerThread(socket,requestHandler,serializer));
+                threadPool.execute(new SocketRequestHandlerThread(socket,requestHandler,serializer));
             }
             threadPool.shutdown();
         }catch (IOException e){

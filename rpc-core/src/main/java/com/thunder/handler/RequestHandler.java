@@ -30,23 +30,20 @@ public class RequestHandler{
         Object result = null;
         //从服务端本地注册表中获取服务实体
         Object service = serviceProvider.getServiceProvider(rpcRequest.getInterfaceName());
-        try{
-            result = invokeTargetMethod(rpcRequest, service);
-            logger.info("service:{}success method:{}", rpcRequest.getInterfaceName(), rpcRequest.getMethodName());
-        }catch (IllegalAccessException | InvocationTargetException e){
-            logger.info("error in send or use：" + e);
-        }
-        return RpcResponse.success(result, rpcRequest.getRequestId());
+        return invokeTargetMethod(rpcRequest,service);
     }
-    private Object invokeTargetMethod(RpcRequest rpcRequest,Object service) throws InvocationTargetException, IllegalAccessException{
-        Method method = null;
+    private Object invokeTargetMethod(RpcRequest rpcRequest,Object service){
+        Object result;
         try{
             //getClass()获取的是实例对象的类型
-            method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
-        }catch (NoSuchMethodException e){
+            Method method = service.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParamTypes());
+            result = method.invoke(service, rpcRequest.getParameters());
+            logger.info("service:{} success method:{}", rpcRequest.getInterfaceName(), rpcRequest.getMethodName());
+        }catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e){
             logger.info("use or send has error:"+e);
             return RpcResponse.fail(ResponseCode.NOT_FOUND_METHOD, rpcRequest.getRequestId());
         }
-        return method.invoke(service, rpcRequest.getParameters());
+        //方法调用成功
+        return RpcResponse.success(result, rpcRequest.getRequestId());
     }
 }
